@@ -1,0 +1,23 @@
+DEV_env = {
+  "postgres_db": {
+    'ENGINE': 'django.contrib.gis.db.backends.postgis',
+    'NAME': 'cctv',
+    'USER': 'postgres',
+    'PASSWORD': 'qD\*s@7&yBbyzE-#',
+    'HOST': '172.18.210.65',
+    'PORT': 5432
+  },
+  "mongo_db": {
+    'ENGINE': 'djongo',
+    'NAME': 'cctv_dev',
+    'CLIENT': {
+      'host': 'mongodb://172.18.210.62/cctv_dev',
+      'port': 27017,
+      'username': 'cctv_dev',
+      'password': 'cctv$549ghj',
+    },
+  }
+}
+
+POSTGRES_DATABASE = DEV_env['postgres_db']
+MONGO_DATABASE = DEV_env['mongo_db']
