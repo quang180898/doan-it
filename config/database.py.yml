@@ -1,0 +1,12 @@
+DEV_env = {
+  "postgres_db": {
+    'ENGINE': 'django.contrib.gis.db.backends.postgis',
+    'NAME': 'cctv',
+    'USER': 'postgres',
+    'PASSWORD': 'qD\*s@7&yBbyzE-#',
+    'HOST': '172.18.210.65',
+    'PORT': 5432
+  }
+}
+
+POSTGRES_DATABASE = DEV_env['postgres_db']
