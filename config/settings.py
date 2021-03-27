@@ -12,8 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import django.db.models.options as options
-from .database import POSTGRES_DATABASE, MONGO_DATABASE
-from .root_local import LOCAL_DEBUG, LOCAL_MEDIA_ROOT, LOCAL_STATIC_ROOT, LOCAL_ALLOWED_HOSTS
+from .database import POSTGRES_DATABASE
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -27,10 +26,7 @@ LOCALE_PATHS = (
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'y_nx76(#pe1u(qv-tifs!$v(w4d(ewa+2o@fjwl^*01-an@8g'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = LOCAL_DEBUG
 
-ALLOWED_HOSTS = LOCAL_ALLOWED_HOSTS
 
 # Server's qualified domain name
 try:
@@ -62,7 +58,7 @@ MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware',
 ]
 
-ROOT_URLCONF = 'cctv_config.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -80,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'cctv_config.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -88,14 +84,13 @@ WSGI_APPLICATION = 'cctv_config.wsgi.application'
 
 DATABASES = {
     'default': {},
-    'postgres_db': POSTGRES_DATABASE,
-    'mongo_db': MONGO_DATABASE,
+    'postgres_db': POSTGRES_DATABASE
 }
 
 # Multi db:
 options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('using',)
 
-DATABASE_ROUTERS = ['cctv_config.database_router.ModelMetaRouter']
+DATABASE_ROUTERS = ['config.database_router.ModelMetaRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -164,12 +159,6 @@ YEAR_MONTH_FORMAT = '%b/%Y'
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-if DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-else:
-    MEDIA_ROOT = LOCAL_MEDIA_ROOT
-    STATIC_ROOT = LOCAL_STATIC_ROOT
 
 # Mail
 EMAIL_USE_TLS = True

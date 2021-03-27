@@ -1,4 +1,4 @@
-from cctv_config import settings
+from config import settings
 
 LIMIT_SIZE_IMAGE = settings.DATA_UPLOAD_MAX_MEMORY_SIZE  #2.5mb
 

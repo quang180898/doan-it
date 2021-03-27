@@ -2,7 +2,7 @@ import requests
 from requests.exceptions import HTTPError
 import json
 
-from cctv_config.root_local import SERVICE_CORE_KEY, SERVICE_CORE_URL
+from config.root_local import SERVICE_CORE_KEY, SERVICE_CORE_URL
 from library.constant.services import MNV_ENCODE
 
 

@@ -3,7 +3,7 @@ import json
 from django.utils import translation
 
 from library.functions import convert_list_to_string
-# from cctv_config.root_local import SERVICE_DETECT_KEY, CLOUD_SERVER_URL
+# from config.root_local import SERVICE_DETECT_KEY, CLOUD_SERVER_URL
 from library.constant.services import MNV_ENCODE, CHATTING_SERVICE_KEY
 import tensorflow as tf
 

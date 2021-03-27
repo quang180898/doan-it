@@ -1,5 +1,5 @@
 import logging
-from cctv_config.root_local import LOGGER_PRINT
+from config.root_local import LOGGER_PRINT
 
 
 def logger(string, log_name='service', type='info'):

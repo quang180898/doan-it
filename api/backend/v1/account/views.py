@@ -11,16 +11,9 @@ from django.db.models import (
 from django.db.models.functions import Concat
 
 from api.base.apiViews import APIView
-from cctv_config import settings
-from cctv_config.root_local import CHATTING_SERVER, CLOUD_SERVER_URL, LOCAL_SERVER_DOMAIN
-from core.postgres.camera.models import Camera, CameraUser
-from core.postgres.customer.models import Customer
-from core.postgres.permission.models import Permission
-from core.postgres.system.models import SystemLocation
-from core.postgres.vms.models import VMS, VmsGroup, VmsUser
+from core.postgres.camera.models import Camera
 from library.constant.api import (
     ADMIN, MANAGER,
-    SERVICE_CODE_ADMIN_PERMISSION,
     SERVICE_CODE_BODY_PARSE_ERROR,
     SERVICE_CODE_CUSTOMER_NOT_EXIST,
     SERVICE_CODE_FILE_SIZE,
@@ -130,8 +123,8 @@ class Account(APIView):
                                 item['view_flag'] = True
                                 item['edit_flag'] = True
                 user_avatar_url = ""
-                if cus_permission['avatar_url']:
-                    user_avatar_url = CLOUD_SERVER_URL + cus_permission['avatar_url']
+                # if cus_permission['avatar_url']:
+                #     user_avatar_url = CLOUD_SERVER_URL + cus_permission['avatar_url']
                 tmp = {
                     "info_user": {
                         "user_id": cus_permission['id'],

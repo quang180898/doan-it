@@ -1,7 +1,7 @@
 import binascii
 import os
 
-from cctv_config.root_local import CLOUD_SERVER_PATH, CLOUD_SERVER_URL, CLOUD_SERVER_ACCESS_KEY, CLOUD_SERVER_SECRET_KEY
+from config.root_local import CLOUD_SERVER_PATH, CLOUD_SERVER_URL, CLOUD_SERVER_ACCESS_KEY, CLOUD_SERVER_SECRET_KEY
 from library.constant.file_check import FILE_TYPE_JPG, FILE_TYPE_JPEG, FILE_TYPE_PNG
 import requests
 

@@ -1,4 +1,4 @@
-# from cctv_config.root_local import SERVICE_CORE_URL 
+# from config.root_local import SERVICE_CORE_URL
 
 
 # SERVICE_SYSTEM_COUNTRIES_ALL_URL = f'{SERVICE_CORE_URL}{VERSION_1_QUERY}/location/countries'
@@ -13,7 +13,7 @@
 # SERVICE_SYSTEM_FIND_WARD = f'{SERVICE_CORE_URL}{VERSION_1_QUERY}/location/find/wards'
 
 # SERVICE_SYSTEM_SEARCH_ALL = f'{SERVICE_CORE_URL}{VERSION_1_SERVICE}/map/search_all'
-from cctv_config.root_local import LAYOUT_SERVICE_URL, LAYOUT_SERVICE_KEY
+from config.root_local import LAYOUT_SERVICE_URL, LAYOUT_SERVICE_KEY
 from library.constant.services import MNV_ENCODE
 
 SERVICE_VMS_URL = 'api/v1/devices/cameras/'

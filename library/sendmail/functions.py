@@ -1,6 +1,6 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 from django.core.mail import EmailMessage
-from cctv_config.settings import EMAIL_HOST_STRING
+from config.settings import EMAIL_HOST_STRING
 
 
 class PoolHandle(object):
