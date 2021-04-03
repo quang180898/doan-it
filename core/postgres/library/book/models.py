@@ -1,27 +1,34 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from core.postgres.library.author.models import Author
+from core.postgres.library.category.models import Category
+from core.postgres.library.publishing_company.models import PublishingCompany
 from core.postgres.models import BaseModel
-from library.constant.api import CAMERA_NOT_RECORD, CAMERA_RECORDING_CHOICE
 
 
 class Book(BaseModel):
     id = models.BigAutoField(db_column='id', primary_key=True)
     name = models.CharField(max_length=150, db_column='name', blank=True)
-    # camera_type = models.ForeignKey(CameraType, db_column='camera_type_id',
-    #                                 blank=True, null=True,
-    #                                 on_delete=models.PROTECT,
-    #                                 verbose_name=_('Camera Type'))
     quantity = models.IntegerField(db_column='quantity', null=True, blank=True)
     price = models.FloatField(db_column='price', null=True, blank=True)
-
-
+    category = models.ForeignKey(Category, db_column='category',
+                                 blank=True, null=True,
+                                 on_delete=models.PROTECT,
+                                 verbose_name=_('Category'))
+    author = models.ForeignKey(Author, db_column='author',
+                               blank=True, null=True,
+                               on_delete=models.PROTECT,
+                               verbose_name=_('Author'))
+    publishing_company = models.ForeignKey(PublishingCompany,
+                                           db_column='publishing_company',
+                                           blank=True, null=True,
+                                           on_delete=models.PROTECT,
+                                           verbose_name=_('Publishing_company'))
+    location = models.CharField(max_length=255, db_column='location', null=True, blank=True)
+    description = models.CharField(max_length=1000, db_column='description', null=True, blank=True)
     deleted_flag = models.BooleanField(db_column='deleted_flag', default=False)
-    active_flag = models.BooleanField(db_column='active_flag', default=True)
-    url_stream = models.CharField(max_length=255, db_column='url_stream', null=True, blank=True)
-    coordinates = models.JSONField(db_column='coordinates', blank=True, null=True)
-    slug = models.UUIDField(db_column='slug', null=True, blank=True, editable=False)
 
     class Meta(BaseModel.Meta):
-        db_table = 'cctv_camera'
-        verbose_name_plural = _('Camera')
+        db_table = 'book'
+        verbose_name_plural = _('Book')

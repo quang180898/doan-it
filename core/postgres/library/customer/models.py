@@ -5,7 +5,7 @@ from core.postgres.models import BaseModel
 from library.constant.api import GENDER_TYPE_MALE, GENDER_TYPE_CHOICE
 
 
-class Account(BaseModel):
+class Customer(BaseModel):
     id = models.BigAutoField(db_column='id', primary_key=True)
     name = models.CharField(max_length=150, db_column='name', blank=True)
     username = models.CharField(max_length=50, db_column='username', null=True, blank=True)
@@ -13,7 +13,7 @@ class Account(BaseModel):
     mail = models.CharField(max_length=255, db_column='mail', null=True, blank=True)
     mobile = models.CharField(max_length=255, db_column='mobile', null=True, blank=True)
     address = models.CharField(max_length=255, db_column='address', null=True, blank=True)
-    permission = models.ForeignKey(Permission, db_column='permission',
+    permission = models.ForeignKey(Permission, db_column='permission_id',
                                    blank=True, null=True,
                                    on_delete=models.PROTECT,
                                    verbose_name=_('Permission'))
@@ -27,5 +27,5 @@ class Account(BaseModel):
     active_flag = models.BooleanField(db_column='active_flag', default=True)
 
     class Meta(BaseModel.Meta):
-        db_table = 'account'
-        verbose_name_plural = _('Account')
+        db_table = 'customer'
+        verbose_name_plural = _('Customer')
