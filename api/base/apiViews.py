@@ -7,7 +7,7 @@ from rest_framework import HTTP_HEADER_ENCODING
 
 class APIView(BaseAPIView):
     # setting default authentication
-    authentication_classes = (TokenAuthentication,)
+    # authentication_classes = (TokenAuthentication,)
     permission_classes = ()
 
     user = None
@@ -74,5 +74,5 @@ class APIView(BaseAPIView):
 
 
 class APIAnonymousView(BaseAPIView):
-    authentication_classes = ()
+    # authentication_classes = ()
     permission_classes = list()

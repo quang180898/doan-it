@@ -17,6 +17,7 @@ SERVICE_CODE_WRONG_TOKEN = 103  # Sai token
 SERVICE_CODE_USER_IS_LOCKED = 104  # Tài khoản bị Aber khóa
 SERVICE_CODE_USER_NOT_ACTIVE = 105  # Tài khoản chưa kích hoạt
 SERVICE_CODE_DEVICE_OTP_INVALID = 106  # sai OTP
+SERVICE_CODE_CUSTOMER_ERROR = 107  # sai TK và PW
 
 SERVICE_CODE_SEND_EMAIL_FAIL = 199  # gửi mail để reset pass khi người dùng quên mật khẩu thất bại
 SERVICE_CODE_NOT_FOUND = 200  # data tìm không thấy
@@ -108,7 +109,7 @@ SERVICE_MESSAGE = {
         'vi': 'Tài khoản chưa kích hoạt. Vui lòng liên hệ Admin'
     },
     SERVICE_CODE_USER_IS_LOCKED: {
-        'en': 'Your account blocked, please contact Admin',
+        'en': 'Your customer blocked, please contact Admin',
         'vi': 'Tài khoản của bạn bị khóa. Vui lòng liên hệ Admin'
     },
     SERVICE_CODE_NOT_FOUND: {
@@ -329,6 +330,10 @@ SERVICE_MESSAGE = {
     SERVICE_CODE_ADDRESS_SPECIAL_CHARACTER: {
         'en': 'Address cannot contain special characters',
         'vi': 'Địa chỉ không thể chứa ký tự đặc biệt'
+    },
+    SERVICE_CODE_CUSTOMER_ERROR: {
+        'en': 'User_name or pass_word error!',
+        'vi': 'Sai tài khoản hoặc mật khẩu!'
     }
 }
 

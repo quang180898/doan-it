@@ -27,7 +27,6 @@ LOCALE_PATHS = (
 SECRET_KEY = 'y_nx76(#pe1u(qv-tifs!$v(w4d(ewa+2o@fjwl^*01-an@8g'
 
 
-
 # Server's qualified domain name
 try:
     from .root_local import LOCAL_SERVER_DOMAIN
@@ -172,5 +171,7 @@ DEFAULT_LANGUAGE_ID = 2
 
 LAT = 16.088042
 LON = 106.896973
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 2621440  # 2.5mb

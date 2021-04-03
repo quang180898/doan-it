@@ -10,7 +10,7 @@ from library.constant.custom_messages import CUSTOM_ERROR_MESSAGE, INVALID_LOGIN
 from library.otp import get_otp
 from library.authorization import check_dev_env, login_exception, get_language_header
 
-from core.postgres.customer.models import Customer
+# from core.postgres.customer.models import Customer
 
 
 # check token authorize
