@@ -7,7 +7,8 @@ from core.postgres.library.permission.models import Permission
 from library.constant.api import (
     SERVICE_CODE_BODY_PARSE_ERROR,
     SERVICE_CODE_NOT_EXISTS_BODY,
-    SERVICE_CODE_USER_NAME_DUPLICATE, SERVICE_CODE_NOT_FOUND,
+    SERVICE_CODE_USER_NAME_DUPLICATE, SERVICE_CODE_NOT_FOUND, SERVICE_CODE_CUSTOMER_NOT_EXIST,
+    SERVICE_CODE_NOT_EXISTS_USER,
 )
 from library.constant.custom_messages import (
     INVALID_REPEAT_PASSWORD,
@@ -108,6 +109,40 @@ class Account(APIView):
             "permission_code": permission['permission_code'],
             "permission_name": permission['name']
         }))
+
+    def update_profile(self, request):
+        if not request.data:
+            return self.response_exception(code=SERVICE_CODE_NOT_EXISTS_BODY)
+        try:
+            content = request.POST
+        except Exception as ex:
+            return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR, mess=str(ex))
+        if content == {}:
+            return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR)
+        user_id = convert_to_int(content.get("user_id"))
+        name = content.get("name")
+        mail = content.get("mail")
+        mobile = content.get("mobile")
+        address = content.get("address")
+        if user_id:
+            try:
+                customer = Customer.objects.get(id=user_id, deleted_flag=False)
+            except Customer.DoesNotExist:
+                return self.response_exception(code=SERVICE_CODE_CUSTOMER_NOT_EXIST)
+            customer.name = name if name is not None else customer.name
+            customer.mail = mail if mail is not None else customer.mail
+            customer.mobile = mobile if mobile is not None else customer.mobile
+            customer.address = address if address is not None else customer.address
+            customer.save()
+            return self.response(self.response_success({
+                "customer_id": customer.id,
+                "customer_name": customer.name,
+                "customer_mobile": customer.mobile,
+                "customer_address": customer.address,
+                "customer_mail": customer.mail
+            }))
+        else:
+            return self.validate_exception("Missing user_id!")
 
     # def info_user(self, request):
     #     param = request.query_params
