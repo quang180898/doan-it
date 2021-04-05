@@ -1,6 +1,6 @@
-from django.contrib.auth.models import Permission
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from core.postgres.library.permission.models import Permission
 from core.postgres.models import BaseModel
 from library.constant.api import GENDER_TYPE_MALE, GENDER_TYPE_CHOICE
 
