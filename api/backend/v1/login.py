@@ -3,7 +3,8 @@ from django.contrib.auth.hashers import check_password
 from api.base.apiViews import APIView
 from core.postgres.library.customer.models import Customer
 from library.constant.api import (
-    SERVICE_CODE_NOT_EXISTS_BODY, SERVICE_CODE_BODY_PARSE_ERROR, SERVICE_CODE_CUSTOMER_ERROR
+    SERVICE_CODE_NOT_EXISTS_BODY, SERVICE_CODE_BODY_PARSE_ERROR, SERVICE_CODE_CUSTOMER_ERROR,
+    SERVICE_CODE_WRONG_PASSWORD
 )
 
 
@@ -48,6 +49,6 @@ class LoginView(APIView):
                     "permission_code": customer_login['permission__permission_code'],
                     "permission_name": customer_login['permission__name'],
                 }))
-            return self.response(self.validate_exception("Password wrong"))
+            return self.response_exception(code=SERVICE_CODE_WRONG_PASSWORD)
         else:
             return self.response_exception(code=SERVICE_CODE_CUSTOMER_ERROR)
