@@ -1,4 +1,4 @@
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import F
 
 from api.base.apiViews import APIView
@@ -8,14 +8,14 @@ from library.constant.api import (
     SERVICE_CODE_BODY_PARSE_ERROR,
     SERVICE_CODE_NOT_EXISTS_BODY,
     SERVICE_CODE_USER_NAME_DUPLICATE, SERVICE_CODE_NOT_FOUND, SERVICE_CODE_CUSTOMER_NOT_EXIST,
-    SERVICE_CODE_NOT_EXISTS_USER,
+    SERVICE_CODE_NOT_EXISTS_USER, ADMIN,
 )
 from library.constant.custom_messages import (
     INVALID_REPEAT_PASSWORD,
     NEW_PASSWORD_EMPTY,
     PASSWORD_LENGTH,
     USER_NAME_ERROR,
-    USER_NAME_LENGTH
+    USER_NAME_LENGTH, WRONG_PASSWORD, SAME_PASSWORD
 )
 from library.functions import convert_to_int
 
@@ -141,6 +141,51 @@ class Account(APIView):
                 "customer_address": customer.address,
                 "customer_mail": customer.mail
             }))
+        else:
+            return self.validate_exception("Missing user_id!")
+
+    def change_password(self, request):
+        if not request.body:
+            return self.response_exception(code=SERVICE_CODE_NOT_EXISTS_BODY)
+        try:
+            data = self.decode_to_json(request.body)
+        except:
+            return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR)
+
+        key_content_list = list(data.keys())
+        check_keys_list = ['new_password_repeat', 'new_password', 'current_password']
+        user_id = convert_to_int(data.get('user_id'))
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+        new_password_repeat = data.get('new_password_repeat')
+        if 'user_id' in key_content_list:
+            if not all(key in key_content_list for key in check_keys_list):
+                return self.validate_exception(
+                    'Missing ' + ", ".join(str(param) for param in check_keys_list if param not in key_content_list))
+            user = Customer.objects.filter(
+                id=user_id,
+                deleted_flag=False
+            ).first()
+            if user:
+                if check_password(current_password, user.password) is False:
+                    self.validate_exception(code=WRONG_PASSWORD)
+
+                if ' ' in new_password:
+                    self.validate_exception(code=NEW_PASSWORD_EMPTY)
+
+                if new_password == current_password:
+                    self.validate_exception(code=SAME_PASSWORD)
+
+                if len(new_password) < 8 or len(new_password) > 25:
+                    self.validate_exception(code=PASSWORD_LENGTH)
+
+                if new_password != new_password_repeat:
+                    self.validate_exception(code=INVALID_REPEAT_PASSWORD)
+                user.password = make_password(new_password)
+                user.save()
+                return self.response(self.response_success("Change password success!"))
+            else:
+                return self.response_exception(code=SERVICE_CODE_CUSTOMER_NOT_EXIST)
         else:
             return self.validate_exception("Missing user_id!")
 
