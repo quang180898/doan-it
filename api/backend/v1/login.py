@@ -1,9 +1,9 @@
-from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.hashers import check_password
 
 from api.base.apiViews import APIView
 from core.postgres.library.customer.models import Customer
 from library.constant.api import (
-    USER_PERMISSION, SERVICE_CODE_NOT_EXISTS_BODY, SERVICE_CODE_BODY_PARSE_ERROR, SERVICE_CODE_CUSTOMER_ERROR
+    SERVICE_CODE_NOT_EXISTS_BODY, SERVICE_CODE_BODY_PARSE_ERROR, SERVICE_CODE_CUSTOMER_ERROR
 )
 
 
@@ -24,16 +24,30 @@ class LoginView(APIView):
                 'Missing ' + ", ".join(str(param) for param in check_keys_list if param not in key_content_list))
         customer_login = Customer.objects.filter(
             username=user_name,
-            password=check_password(pass_word),
             deleted_flag=False
         ).values(
             'id',
+            'username',
+            'password',
             'name',
             'mail',
             'mobile',
-            'address'
+            'address',
+            'permission__permission_code',
+            'permission__name',
         ).first()
         if customer_login:
-            return self.response(self.response_success(customer_login))
+            if check_password(pass_word, customer_login['password']) is True:
+                return self.response(self.response_success({
+                    "customer_id": customer_login['id'],
+                    "username": customer_login['username'],
+                    "name": customer_login['name'],
+                    "mail": customer_login['mail'],
+                    "mobile": customer_login['mobile'],
+                    "address": customer_login['address'],
+                    "permission_code": customer_login['permission__permission_code'],
+                    "permission_name": customer_login['permission__name'],
+                }))
+            return self.response(self.validate_exception("Password wrong"))
         else:
             return self.response_exception(code=SERVICE_CODE_CUSTOMER_ERROR)

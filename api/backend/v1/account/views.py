@@ -1,4 +1,6 @@
 from django.contrib.auth.hashers import make_password
+from django.db.models import F
+
 from api.base.apiViews import APIView
 from core.postgres.library.customer.models import Customer
 from core.postgres.library.permission.models import Permission
@@ -23,13 +25,17 @@ class Account(APIView):
         customer = Customer.objects.filter(
             id=user_id,
             deleted_flag=False
+        ).annotate(
+            permission_code=F('permission__permission_code'),
+            permission_name=F('permission__name')
         ).values(
             'id',
             'name',
             'mobile',
             'username',
-            'password',
-            'mail'
+            'mail',
+            'permission_code',
+            'permission_name'
         ).first()
         if customer:
             return self.response(self.response_success(customer))
