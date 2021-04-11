@@ -1,3 +1,7 @@
+import base64
+import io
+
+from PIL import Image
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,11 +32,30 @@ class Book(BaseModel):
     #                                        verbose_name=_('Publishing_company'))
     location = models.CharField(max_length=255, db_column='location', null=True, blank=True)
     description = models.CharField(max_length=1000, db_column='description', null=True, blank=True)
+    image_bytes = models.BinaryField(db_column='image_bytes')
     deleted_flag = models.BooleanField(db_column='deleted_flag', default=False)
 
     class Meta(BaseModel.Meta):
         db_table = 'book'
         verbose_name_plural = _('Book')
+
+    @property
+    def get_image(self):
+        try:
+            return base64.b64encode(self.image_bytes).decode('utf-8')
+        except:
+            return None
+
+    @property
+    def get_thumbnail(self):
+        try:
+            image = Image.open(io.BytesIO(self.image_bytes))
+            image.thumbnail((90, 90))
+            data = io.BytesIO()
+            image.save(data, format="PNG")
+            return base64.b64encode(data.getvalue()).decode('utf-8')
+        except:
+            return None
 
 
 class BookUser(BaseModel):

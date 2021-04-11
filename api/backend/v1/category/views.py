@@ -1,38 +1,61 @@
 from django.db.models import F
 
 from api.base.apiViews import APIView
-from config.settings import DATA_UPLOAD_MAX_MEMORY_SIZE
-from core.postgres.library.book.models import Book
-from core.postgres.library.permission.models import Permission
+from core.postgres.library.category.models import Category
 from library.constant.api import (
     SERVICE_CODE_BODY_PARSE_ERROR,
     SERVICE_CODE_NOT_EXISTS_BODY,
-    SERVICE_CODE_USER_NAME_DUPLICATE, SERVICE_CODE_NOT_FOUND, SERVICE_CODE_CUSTOMER_NOT_EXIST,
-    SERVICE_CODE_NOT_EXISTS_USER, ADMIN, SERVICE_CODE_FILE_SIZE, SERVICE_CODE_FORMAT_NOT_SUPPORTED,
+    SERVICE_CODE_NOT_FOUND,
 )
 from library.functions import convert_to_int
-from library.service.upload_file import get_constant_file_type_from_extension
 
 
-class LibraryBook(APIView):
-    def list_book(self, request):
-        book = Book.objects.filter(
-            deleted_flag=False
+class LibraryCategory(APIView):
+    def list_category(self, request):
+        category = Category.objects.all(
         ).annotate(
-            category_id=F('bookcategory__category_id'),
-            category_name=F('bookcategory__category_id__name'),
-            author_id=F('bookauthor__author_id'),
-            author_name=F('bookauthor__author_id__name')
+            category_id=F('id'),
+            category_name=F('name'),
+            category_description=F('description')
         ).values(
-            'id',
-            'name',
-            'image_bytes',
-            'deleted_flag',
             'category_id',
             'category_name',
-            'author_id',
-            'author_name',
-            'quantity',
-            'price'
-        )
-        return self.response(self.response_success(list(book)))
+            'category_description'
+        ).order_by('category_id')
+        return self.response(self.response_success(list(category)))
+
+    def create_or_update(self, request):
+        if not request.data:
+            return self.response_exception(code=SERVICE_CODE_NOT_EXISTS_BODY)
+        try:
+            content = request.data
+        except Exception as ex:
+            return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR, mess=str(ex))
+        category_id = convert_to_int(content.get('category_id'))
+        name = content.get('name')
+        description = content.get('description')
+        if category_id:
+            try:
+                category = Category.objects.get(id=category_id)
+            except Category.DoesNotExist:
+                return self.response_exception(code=SERVICE_CODE_NOT_FOUND)
+            category.name = name if name is not None else category.name
+            category.description = description if description is not None else category.description
+            category.save()
+            return self.response(self.response_success({
+                "category_id": category.id,
+                "category_name": category.name,
+                "category_description": category.description
+            }))
+        else:
+            if description is None:
+                description = ""
+            category = Category.objects.create(
+                name=name,
+                description=description
+            )
+            return self.response(self.response_success({
+                "category_id": category.id,
+                "category_name": category.name,
+                "category_description": category.description
+            }))

@@ -1,8 +1,8 @@
 from django.urls import path
 
-from api.backend.v1.category.views import LibraryCategory
+from api.backend.v1.publishing_company.views import LibraryPublishingCompany
 
 urlpatterns = [
-    path('', LibraryCategory.as_view({'get': 'list_category'})),
-    path('create_or_update/', LibraryCategory.as_view({'post': 'create_or_update'})),
+    path('', LibraryPublishingCompany.as_view({'get': 'list_publishing_company'})),
+    path('create_or_update/', LibraryPublishingCompany.as_view({'post': 'create_or_update'})),
 ]
