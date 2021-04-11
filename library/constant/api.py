@@ -81,7 +81,9 @@ SERVICE_CODE_FULL_NAME_NONE = 262
 SERVICE_CODE_ADDRESS_NONE = 263
 SERVICE_CODE_MOBILE_NONE = 264
 SERVICE_CODE_ADDRESS_SPECIAL_CHARACTER = 265
-
+SERVICE_CODE_MAIL_ISSPACE = 266
+SERVICE_CODE_MAIL_SPECIAL_CHARACTER = 267
+SERVICE_CODE_MAIL_DUPLICATE = 268
 # -- Dictionary --
 SERVICE_MESSAGE = {
     SERVICE_CODE_DEVICE_INVALID: {
@@ -334,7 +336,19 @@ SERVICE_MESSAGE = {
     SERVICE_CODE_CUSTOMER_ERROR: {
         'en': 'User_name or pass_word error!',
         'vi': 'Sai tài khoản hoặc mật khẩu!'
-    }
+    },
+    SERVICE_CODE_MAIL_ISSPACE: {
+        'en': 'Mail must have characters',
+        'vi': 'Mail phải có ký tự'
+    },
+    SERVICE_CODE_MAIL_SPECIAL_CHARACTER: {
+        'en': 'Mail cannot contain special characters',
+        'vi': 'Mail không thể chứa ký tự đặc biệt'
+    },
+    SERVICE_CODE_MAIL_DUPLICATE: {
+        'en': "Mail duplicate",
+        'vi': "Mail đã tồn tại trong hệ thống"
+    },
 }
 
 # --- Sort method ---

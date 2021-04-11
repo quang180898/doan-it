@@ -1,14 +1,20 @@
+import re
+
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import F
 
 from api.base.apiViews import APIView
+from config.settings import DATA_UPLOAD_MAX_MEMORY_SIZE
 from core.postgres.library.customer.models import Customer
 from core.postgres.library.permission.models import Permission
 from library.constant.api import (
     SERVICE_CODE_BODY_PARSE_ERROR,
     SERVICE_CODE_NOT_EXISTS_BODY,
     SERVICE_CODE_USER_NAME_DUPLICATE, SERVICE_CODE_NOT_FOUND, SERVICE_CODE_CUSTOMER_NOT_EXIST,
-    SERVICE_CODE_NOT_EXISTS_USER, ADMIN,
+    SERVICE_CODE_NOT_EXISTS_USER, ADMIN, SERVICE_CODE_FILE_SIZE, SERVICE_CODE_FORMAT_NOT_SUPPORTED,
+    SERVICE_CODE_FULL_NAME_SPECIAL_CHARACTER, SERVICE_CODE_FULL_NAME_ISSPACE, SERVICE_CODE_MAIL_SPECIAL_CHARACTER,
+    SERVICE_CODE_MAIL_ISSPACE, SERVICE_CODE_MOBILE_ISSPACE, SERVICE_CODE_MOBILE_LENGTH, SERVICE_CODE_MOBILE_DUPLICATE,
+    SERVICE_CODE_MAIL_DUPLICATE,
 )
 from library.constant.custom_messages import (
     INVALID_REPEAT_PASSWORD,
@@ -17,7 +23,8 @@ from library.constant.custom_messages import (
     USER_NAME_ERROR,
     USER_NAME_LENGTH, WRONG_PASSWORD, SAME_PASSWORD
 )
-from library.functions import convert_to_int
+from library.functions import convert_to_int, is_mobile_valid
+from library.service.upload_file import get_constant_file_type_from_extension
 
 
 class Account(APIView):
@@ -54,17 +61,17 @@ class Account(APIView):
             return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR)
         key_content_list = list(content.keys())
         check_keys_list = ['user_name', 'pass_word', 'password_repeat', 'name',
-                           'mail', 'mobile', 'user_permission_type']
+                           'mail', 'mobile']
 
         name = content['name'] if content.get('name') else None
         mobile = content['mobile'] if content.get('mobile') else None
         mail = content['mail'] if content.get('mail') else None
-        user_permission_type = convert_to_int(
-            content['user_permission_type'] if content.get('user_permission_type') else None)
+        # user_permission_type = convert_to_int(content['user_permission_type'] if content.get('user_permission_type') else None)
         user_name = content['user_name'] if content.get('user_name') else None
         pass_word = content['pass_word'] if content.get('pass_word') else None
         password_repeat = content['password_repeat'] if content.get('password_repeat') else None
-
+        image = request.FILES['image'] if request.FILES.get('image') else None
+        image_name = content.get('image_name')
         if not all(key in key_content_list for key in check_keys_list):
             return self.validate_exception(
                 'Missing ' + ", ".join(str(param) for param in check_keys_list if param not in key_content_list))
@@ -80,25 +87,56 @@ class Account(APIView):
             self.validate_exception(code=PASSWORD_LENGTH)
         if pass_word != password_repeat:
             self.validate_exception(code=INVALID_REPEAT_PASSWORD)
-        if name is None:
-            return self.validate_exception("name is not null!!!")
-        if mobile is None:
-            return self.validate_exception("mobile is not null!!!")
-        if mail is None:
-            return self.validate_exception("mail is not null!!!")
-        if user_name is None:
-            return self.validate_exception("user_name is not null!!!")
+        regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+        if name is not None:
+            if regex.search(name) is not None:
+                return self.response_exception(code=SERVICE_CODE_FULL_NAME_SPECIAL_CHARACTER)
+            if name.isspace():
+                return self.response_exception(code=SERVICE_CODE_FULL_NAME_ISSPACE)
+        else:
+            return self.validate_exception("Tên không được để trống!")
+        if mail is not None:
+            if ' ' in mail:
+                return self.validate_exception("Mail không được chứa khoảng trắng!")
+            if Customer.objects.filter(mail=mail, deleted_flag=False).exists():
+                return self.response_exception(code=SERVICE_CODE_MAIL_DUPLICATE)
+            if mail.isspace():
+                return self.response_exception(code=SERVICE_CODE_MAIL_ISSPACE)
+        else:
+            return self.validate_exception("Mail không được để trống!")
+        if mobile:
+            if mobile.isspace():
+                return self.response_exception(code=SERVICE_CODE_MOBILE_ISSPACE)
+            if is_mobile_valid(mobile) is False:
+                return self.response_exception(code=SERVICE_CODE_MOBILE_LENGTH)
+            if Customer.objects.filter(mobile=mobile, deleted_flag=False).exists():
+                return self.response_exception(code=SERVICE_CODE_MOBILE_DUPLICATE)
+        if image:
+            if image_name is None:
+                return self.validate_exception("missing image_name!")
 
+            img = image_name.split('.')[-1]
+            image_name = get_constant_file_type_from_extension(img)
+            if image_name is None:
+                return self.response_exception(code=SERVICE_CODE_FORMAT_NOT_SUPPORTED)
+            size = request.headers['content-length']
+            if int(size) > DATA_UPLOAD_MAX_MEMORY_SIZE:
+                return self.response_exception(code=SERVICE_CODE_FILE_SIZE)
         user_new = Customer.objects.create(
             name=name,
             username=user_name,
             password=make_password(pass_word),
             mobile=mobile,
             mail=mail,
-            permission_id=user_permission_type
+            permission_id=2,
+            image_bytes=image.read()
         )
-
-        permission = Permission.objects.filter(permission_code=user_new.permission_id).values('permission_code', 'name').first()
+        permission = Permission.objects.filter(
+            permission_code=user_new.permission_id
+        ).values(
+            'permission_code',
+            'name'
+        ).first()
 
         return self.response(self.response_success({
             "user_id": user_new.id,
@@ -106,6 +144,7 @@ class Account(APIView):
             "mobile": user_new.mobile,
             "email": user_new.mail,
             "user_name": user_new.username,
+            "image_base64": user_new.get_image,
             "permission_code": permission['permission_code'],
             "permission_name": permission['name']
         }))
@@ -124,6 +163,20 @@ class Account(APIView):
         mail = content.get("mail")
         mobile = content.get("mobile")
         address = content.get("address")
+        image = request.FILES['image'] if request.FILES.get('image') else None
+        image_name = content.get('image_name')
+        if image:
+            if image_name is None:
+                return self.validate_exception("missing image_name!")
+
+            img = image_name.split('.')[-1]
+            image_name = get_constant_file_type_from_extension(img)
+            if image_name is None:
+                return self.response_exception(code=SERVICE_CODE_FORMAT_NOT_SUPPORTED)
+
+            size = request.headers['content-length']
+            if int(size) > DATA_UPLOAD_MAX_MEMORY_SIZE:
+                return self.response_exception(code=SERVICE_CODE_FILE_SIZE)
         if user_id:
             try:
                 customer = Customer.objects.get(id=user_id, deleted_flag=False)
@@ -133,13 +186,16 @@ class Account(APIView):
             customer.mail = mail if mail is not None else customer.mail
             customer.mobile = mobile if mobile is not None else customer.mobile
             customer.address = address if address is not None else customer.address
+            if image:
+                customer.image_bytes = image.read()
             customer.save()
             return self.response(self.response_success({
                 "customer_id": customer.id,
                 "customer_name": customer.name,
                 "customer_mobile": customer.mobile,
                 "customer_address": customer.address,
-                "customer_mail": customer.mail
+                "customer_mail": customer.mail,
+                "customer_image_base64": customer.get_image,
             }))
         else:
             return self.validate_exception("Missing user_id!")
