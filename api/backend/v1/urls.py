@@ -10,5 +10,6 @@ urlpatterns = [
     path('book/', include(URL_BACKEND_API + 'book.urls')),
     path('category/', include(URL_BACKEND_API + 'category.urls')),
     path('author/', include(URL_BACKEND_API + 'author.urls')),
-    path('publishing_company/', include(URL_BACKEND_API + 'publishing_company.urls'))
+    path('publishing_company/', include(URL_BACKEND_API + 'publishing_company.urls')),
+    path('account_book/', include(URL_BACKEND_API + 'account_book.urls'))
 ]

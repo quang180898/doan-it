@@ -1,4 +1,5 @@
 import base64
+import datetime
 import io
 
 from PIL import Image
@@ -17,19 +18,19 @@ class Book(BaseModel):
     name = models.CharField(max_length=150, db_column='name', blank=True)
     quantity = models.IntegerField(db_column='quantity', null=True, blank=True)
     price = models.FloatField(db_column='price', null=True, blank=True)
-    # category = models.ForeignKey(Category, db_column='category',
-    #                              blank=True, null=True,
-    #                              on_delete=models.PROTECT,
-    #                              verbose_name=_('Category'))
-    # author = models.ForeignKey(Author, db_column='author',
-    #                            blank=True, null=True,
-    #                            on_delete=models.PROTECT,
-    #                            verbose_name=_('Author'))
-    # publishing_company = models.ForeignKey(PublishingCompany,
-    #                                        db_column='publishing_company',
-    #                                        blank=True, null=True,
-    #                                        on_delete=models.PROTECT,
-    #                                        verbose_name=_('Publishing_company'))
+    category = models.ForeignKey(Category, db_column='category',
+                                 blank=True, null=True,
+                                 on_delete=models.PROTECT,
+                                 verbose_name=_('Category'))
+    author = models.ForeignKey(Author, db_column='author',
+                               blank=True, null=True,
+                               on_delete=models.PROTECT,
+                               verbose_name=_('Author'))
+    publishing_company = models.ForeignKey(PublishingCompany,
+                                           db_column='publishing_company',
+                                           blank=True, null=True,
+                                           on_delete=models.PROTECT,
+                                           verbose_name=_('Publishing Company'))
     location = models.CharField(max_length=255, db_column='location', null=True, blank=True)
     description = models.CharField(max_length=1000, db_column='description', null=True, blank=True)
     image_bytes = models.BinaryField(db_column='image_bytes')
@@ -71,55 +72,18 @@ class BookUser(BaseModel):
     date_borrow = models.DateTimeField(db_column='date_borrow', blank=True, null=True)
     date_return = models.DateTimeField(db_column='date_return', blank=True, null=True)
     finished_flag = models.BooleanField(db_column='finished_flag', default=False)
+    status = models.CharField(max_length=20, db_column='status', default='Chưa tới hạn')
+
+    a = 'Trễ Hạn'
+    b = 'Chưa Tới Hạn'
+
+    def set_statuss(self):
+        now = datetime.datetime.now()
+        if (self.date_return <= now):
+            return self.a
+        else:
+            return self.b
 
     class Meta(BaseModel.Meta):
         db_table = 'customer_book'
         verbose_name_plural = _('Customer Book')
-
-
-class BookAuthor(BaseModel):
-    id = models.BigAutoField(db_column='id', primary_key=True)
-    book_id = models.ForeignKey(Book, db_column='book_id',
-                                blank=True, null=True,
-                                on_delete=models.PROTECT,
-                                verbose_name=_('BookID'))
-    author_id = models.ForeignKey(Author, db_column='author_id',
-                                  blank=True, null=True,
-                                  on_delete=models.PROTECT,
-                                  verbose_name=_('AuthorID'))
-
-    class Meta(BaseModel.Meta):
-        db_table = 'author_book'
-        verbose_name_plural = _('Author Book')
-
-
-class BookCategory(BaseModel):
-    id = models.BigAutoField(db_column='id', primary_key=True)
-    book_id = models.ForeignKey(Book, db_column='book_id',
-                                blank=True, null=True,
-                                on_delete=models.PROTECT,
-                                verbose_name=_('BookID'))
-    category_id = models.ForeignKey(Category, db_column='category_id',
-                                    blank=True, null=True,
-                                    on_delete=models.PROTECT,
-                                    verbose_name=_('CategoryID'))
-
-    class Meta(BaseModel.Meta):
-        db_table = 'category_book'
-        verbose_name_plural = _('Category Book')
-
-
-class BookPublishing(BaseModel):
-    id = models.BigAutoField(db_column='id', primary_key=True)
-    book_id = models.ForeignKey(Book, db_column='book_id',
-                                blank=True, null=True,
-                                on_delete=models.PROTECT,
-                                verbose_name=_('BookID'))
-    publishing_company_id = models.ForeignKey(PublishingCompany, db_column='publishing_company_id',
-                                              blank=True, null=True,
-                                              on_delete=models.PROTECT,
-                                              verbose_name=_('PublishingCompanyID'))
-
-    class Meta(BaseModel.Meta):
-        db_table = 'publishing_book'
-        verbose_name_plural = _('Publishing Book')

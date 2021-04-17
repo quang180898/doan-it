@@ -10,10 +10,20 @@ from core.postgres.library.permission.models import Permission
 from library.constant.api import (
     SERVICE_CODE_BODY_PARSE_ERROR,
     SERVICE_CODE_NOT_EXISTS_BODY,
-    SERVICE_CODE_USER_NAME_DUPLICATE, SERVICE_CODE_NOT_FOUND, SERVICE_CODE_CUSTOMER_NOT_EXIST,
-    SERVICE_CODE_NOT_EXISTS_USER, ADMIN, SERVICE_CODE_FILE_SIZE, SERVICE_CODE_FORMAT_NOT_SUPPORTED,
-    SERVICE_CODE_FULL_NAME_SPECIAL_CHARACTER, SERVICE_CODE_FULL_NAME_ISSPACE, SERVICE_CODE_MAIL_SPECIAL_CHARACTER,
-    SERVICE_CODE_MAIL_ISSPACE, SERVICE_CODE_MOBILE_ISSPACE, SERVICE_CODE_MOBILE_LENGTH, SERVICE_CODE_MOBILE_DUPLICATE,
+    SERVICE_CODE_USER_NAME_DUPLICATE,
+    SERVICE_CODE_NOT_FOUND,
+    SERVICE_CODE_CUSTOMER_NOT_EXIST,
+    SERVICE_CODE_NOT_EXISTS_USER,
+    ADMIN,
+    SERVICE_CODE_FILE_SIZE,
+    SERVICE_CODE_FORMAT_NOT_SUPPORTED,
+    SERVICE_CODE_FULL_NAME_SPECIAL_CHARACTER,
+    SERVICE_CODE_FULL_NAME_ISSPACE,
+    SERVICE_CODE_MAIL_SPECIAL_CHARACTER,
+    SERVICE_CODE_MAIL_ISSPACE,
+    SERVICE_CODE_MOBILE_ISSPACE,
+    SERVICE_CODE_MOBILE_LENGTH,
+    SERVICE_CODE_MOBILE_DUPLICATE,
     SERVICE_CODE_MAIL_DUPLICATE,
 )
 from library.constant.custom_messages import (
@@ -21,7 +31,9 @@ from library.constant.custom_messages import (
     NEW_PASSWORD_EMPTY,
     PASSWORD_LENGTH,
     USER_NAME_ERROR,
-    USER_NAME_LENGTH, WRONG_PASSWORD, SAME_PASSWORD
+    USER_NAME_LENGTH,
+    WRONG_PASSWORD,
+    SAME_PASSWORD
 )
 from library.functions import convert_to_int, is_mobile_valid
 from library.service.upload_file import get_constant_file_type_from_extension
@@ -60,8 +72,7 @@ class Account(APIView):
         if content == {}:
             return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR)
         key_content_list = list(content.keys())
-        check_keys_list = ['user_name', 'pass_word', 'password_repeat', 'name',
-                           'mail', 'mobile']
+        check_keys_list = ['user_name', 'pass_word', 'password_repeat', 'name', 'mail', 'mobile']
 
         name = content['name'] if content.get('name') else None
         mobile = content['mobile'] if content.get('mobile') else None
