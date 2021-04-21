@@ -61,29 +61,27 @@ class Book(BaseModel):
 
 class BookUser(BaseModel):
     id = models.BigAutoField(db_column='id', primary_key=True)
-    book_id = models.ForeignKey(Book, db_column='book_id',
-                                blank=True, null=True,
-                                on_delete=models.PROTECT,
-                                verbose_name=_('BookID'))
-    user_id = models.ForeignKey(Customer, db_column='user_id',
-                                blank=True, null=True,
-                                on_delete=models.PROTECT,
-                                verbose_name=_('UserID'))
+    book = models.ForeignKey(Book, db_column='book_id',
+                             blank=True, null=True,
+                             on_delete=models.PROTECT,
+                             verbose_name=_('BookID'))
+    user = models.ForeignKey(Customer, db_column='user_id',
+                             blank=True, null=True,
+                             on_delete=models.PROTECT,
+                             verbose_name=_('UserID'))
     date_borrow = models.DateTimeField(db_column='date_borrow', blank=True, null=True)
     date_return = models.DateTimeField(db_column='date_return', blank=True, null=True)
     finished_flag = models.BooleanField(db_column='finished_flag', default=False)
     status = models.CharField(max_length=20, db_column='status', default='Chưa tới hạn')
 
-    a = 'Trễ Hạn'
-    b = 'Chưa Tới Hạn'
-
-    def set_statuss(self):
-        now = datetime.datetime.now()
-        if (self.date_return <= now):
-            return self.a
-        else:
-            return self.b
-
     class Meta(BaseModel.Meta):
         db_table = 'customer_book'
         verbose_name_plural = _('Customer Book')
+
+    def set_status(self):
+        now = datetime.datetime.now()
+        if self.finished_flag is True:
+            return self.status == 'Đã Trả'
+        else:
+            if self.date_return <= now:
+                return self.status == 'Trễ Hạn'

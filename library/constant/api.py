@@ -84,6 +84,7 @@ SERVICE_CODE_ADDRESS_SPECIAL_CHARACTER = 265
 SERVICE_CODE_MAIL_ISSPACE = 266
 SERVICE_CODE_MAIL_SPECIAL_CHARACTER = 267
 SERVICE_CODE_MAIL_DUPLICATE = 268
+SERVICE_CODE_BOOK_NOT_EXIST = 269
 # -- Dictionary --
 SERVICE_MESSAGE = {
     SERVICE_CODE_DEVICE_INVALID: {
@@ -348,6 +349,10 @@ SERVICE_MESSAGE = {
     SERVICE_CODE_MAIL_DUPLICATE: {
         'en': "Mail duplicate",
         'vi': "Mail đã tồn tại trong hệ thống"
+    },
+    SERVICE_CODE_BOOK_NOT_EXIST: {
+        'en': "Book not exists!",
+        'vi': "Sách không tồn tại trong hệ thống!"
     },
 }
 
