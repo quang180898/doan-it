@@ -144,7 +144,7 @@ class Account(APIView):
             image_bytes=image.read()
         )
         permission = Permission.objects.filter(
-            permission_code=user_new.permission_id
+            code=user_new.permission_id
         ).values(
             'code',
             'name'
