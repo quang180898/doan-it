@@ -1,14 +1,15 @@
-from django.db.models import F
+from django.db.models import F, Q
 
 from api.base.apiViews import APIView
 from config.settings import DATA_UPLOAD_MAX_MEMORY_SIZE
-from core.postgres.library.book.models import Book
+from core.postgres.library.book.models import Book, BookUser
 from core.postgres.library.permission.models import Permission
 from library.constant.api import (
     SERVICE_CODE_BODY_PARSE_ERROR,
     SERVICE_CODE_NOT_EXISTS_BODY,
     SERVICE_CODE_USER_NAME_DUPLICATE, SERVICE_CODE_NOT_FOUND, SERVICE_CODE_CUSTOMER_NOT_EXIST,
     SERVICE_CODE_NOT_EXISTS_USER, ADMIN, SERVICE_CODE_FILE_SIZE, SERVICE_CODE_FORMAT_NOT_SUPPORTED,
+    SERVICE_CODE_BOOK_NOT_EXIST,
 )
 from library.functions import convert_to_int, convert_string_to_list, convert_to_float, get_thumbnail, \
     convert_byte_to_base64
@@ -79,6 +80,26 @@ class LibraryBook(APIView):
         else:
             return self.response_exception(code=SERVICE_CODE_NOT_FOUND)
 
+    def book_same_category(self, request):
+        book_id = convert_to_int(self.request.query_params.get('book_id'))
+        try:
+            book_category = Book.objects.get(id=book_id, deleted_flag=False)
+        except Book.DoesNotExist:
+            return self.response_exception(code=SERVICE_CODE_NOT_FOUND)
+        book_same_category = Book.objects.filter(
+            ~Q(id=book_id),
+            Q(category_id=book_category.category_id),
+            Q(deleted_flag=False)
+        ).values(
+            'id',
+            'name',
+            'price',
+            'category_id',
+            'category__name',
+            'quantity'
+        ).order_by('id')
+        return self.response(self.response_success(list(book_same_category)))
+
     def create_or_update(self, request):
         if not request.data:
             return self.response_exception(code=SERVICE_CODE_NOT_EXISTS_BODY)
@@ -114,7 +135,7 @@ class LibraryBook(APIView):
                 return self.response_exception(code=SERVICE_CODE_FILE_SIZE)
         if book_id:
             try:
-                book = Book.objects.get(id=book_id)
+                book = Book.objects.get(id=book_id, deleted_flag=False)
             except Book.DoesNotExist:
                 return self.response_exception(code=SERVICE_CODE_NOT_FOUND)
             book.name = name if name is not None else book.name
@@ -166,3 +187,21 @@ class LibraryBook(APIView):
                 'image_bytes': book_new.get_image
             }))
 
+    def delete_book(self, request):
+        if not request.body:
+            return self.response_exception(code=SERVICE_CODE_NOT_EXISTS_BODY)
+        try:
+            content = self.decode_to_json(request.body)
+        except Exception as ex:
+            return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR, mess=str(ex))
+        book_id = content.get('book_id')
+        delete = Book.objects.filter(id=book_id, deleted_flag=False).first()
+        if delete:
+            book_user = BookUser.objects.filter(book_id=book_id, deleted_flag=False)
+            if book_user:
+                book_user.update(deleted_flag=True)
+            delete.deleted_flag = True
+            delete.save()
+            return self.response(self.response_success("Success!"))
+        else:
+            return self.response_exception(code=SERVICE_CODE_BOOK_NOT_EXIST)

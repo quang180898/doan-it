@@ -72,6 +72,7 @@ class BookUser(BaseModel):
     date_borrow = models.DateTimeField(db_column='date_borrow', blank=True, null=True)
     date_return = models.DateTimeField(db_column='date_return', blank=True, null=True)
     finished_flag = models.BooleanField(db_column='finished_flag', default=False)
+    deleted_flag = models.BooleanField(db_column='deleted_flag', default=False)
     status = models.CharField(max_length=20, db_column='status', default='Chưa tới hạn')
 
     class Meta(BaseModel.Meta):

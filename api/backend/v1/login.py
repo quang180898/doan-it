@@ -34,7 +34,7 @@ class LoginView(APIView):
             'mail',
             'mobile',
             'address',
-            'permission__permission_code',
+            'permission__code',
             'permission__name',
         ).first()
         if customer_login:
@@ -46,7 +46,7 @@ class LoginView(APIView):
                     "mail": customer_login['mail'],
                     "mobile": customer_login['mobile'],
                     "address": customer_login['address'],
-                    "permission_code": customer_login['permission__permission_code'],
+                    "permission_code": customer_login['permission__code'],
                     "permission_name": customer_login['permission__name'],
                 }))
             return self.response_exception(code=SERVICE_CODE_WRONG_PASSWORD)

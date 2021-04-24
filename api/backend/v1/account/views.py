@@ -5,6 +5,7 @@ from django.db.models import F
 
 from api.base.apiViews import APIView
 from config.settings import DATA_UPLOAD_MAX_MEMORY_SIZE
+from core.postgres.library.book.models import BookUser
 from core.postgres.library.customer.models import Customer
 from core.postgres.library.permission.models import Permission
 from library.constant.api import (
@@ -145,7 +146,7 @@ class Account(APIView):
         permission = Permission.objects.filter(
             permission_code=user_new.permission_id
         ).values(
-            'permission_code',
+            'code',
             'name'
         ).first()
 
@@ -156,7 +157,7 @@ class Account(APIView):
             "email": user_new.mail,
             "user_name": user_new.username,
             "image_base64": user_new.get_image,
-            "permission_code": permission['permission_code'],
+            "permission_code": permission['code'],
             "permission_name": permission['name']
         }))
 
@@ -256,6 +257,24 @@ class Account(APIView):
         else:
             return self.validate_exception("Missing user_id!")
 
+    def delete_account(self, request):
+        if not request.body:
+            return self.response_exception(code=SERVICE_CODE_NOT_EXISTS_BODY)
+        try:
+            content = self.decode_to_json(request.body)
+        except Exception as ex:
+            return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR, mess=str(ex))
+        account_id = content.get('account_id')
+        delete = Customer.objects.filter(id=account_id, deleted_flag=False).first()
+        if delete:
+            book_user = BookUser.objects.filter(user_id=account_id, deleted_flag=False)
+            if book_user:
+                book_user.update(deleted_flag=True)
+            delete.deleted_flag = True
+            delete.save()
+            return self.response(self.response_success("Success!"))
+        else:
+            return self.response_exception(code=SERVICE_CODE_CUSTOMER_NOT_EXIST)
     # def info_user(self, request):
     #     param = request.query_params
     #     key_content_list = list(param.keys())

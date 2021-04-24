@@ -5,14 +5,15 @@ from core.postgres.library.category.models import Category
 from library.constant.api import (
     SERVICE_CODE_BODY_PARSE_ERROR,
     SERVICE_CODE_NOT_EXISTS_BODY,
-    SERVICE_CODE_NOT_FOUND,
+    SERVICE_CODE_NOT_FOUND, SERVICE_CODE_CATEGORY_NOT_EXIST,
 )
 from library.functions import convert_to_int
 
 
 class LibraryCategory(APIView):
     def list_category(self, request):
-        category = Category.objects.all(
+        category = Category.objects.filter(
+            deleted_flag=False
         ).annotate(
             category_id=F('id'),
             category_name=F('name'),
@@ -36,7 +37,7 @@ class LibraryCategory(APIView):
         description = content.get('description')
         if category_id:
             try:
-                category = Category.objects.get(id=category_id)
+                category = Category.objects.get(id=category_id, deleted_flag=False)
             except Category.DoesNotExist:
                 return self.response_exception(code=SERVICE_CODE_NOT_FOUND)
             category.name = name if name is not None else category.name
@@ -59,3 +60,19 @@ class LibraryCategory(APIView):
                 "category_name": category.name,
                 "category_description": category.description
             }))
+
+    def delete_category(self, request):
+        if not request.body:
+            return self.response_exception(code=SERVICE_CODE_NOT_EXISTS_BODY)
+        try:
+            content = self.decode_to_json(request.body)
+        except Exception as ex:
+            return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR, mess=str(ex))
+        category_id = convert_to_int(content.get('category_id'))
+        category = Category.objects.filter(id=category_id, deleted_flag=False).first()
+        if category:
+            category.deleted_flag = True
+            category.save()
+            return self.response(self.response_success("Success!"))
+        else:
+            return self.response_exception(code=SERVICE_CODE_CATEGORY_NOT_EXIST)

@@ -85,6 +85,10 @@ SERVICE_CODE_MAIL_ISSPACE = 266
 SERVICE_CODE_MAIL_SPECIAL_CHARACTER = 267
 SERVICE_CODE_MAIL_DUPLICATE = 268
 SERVICE_CODE_BOOK_NOT_EXIST = 269
+SERVICE_CODE_BOOK_USER_NOT_EXIST = 270
+SERVICE_CODE_CATEGORY_NOT_EXIST = 271
+SERVICE_CODE_AUTHOR_NOT_EXIST = 272
+SERVICE_CODE_PUBLISHING_COMPANY_NOT_EXIST = 273
 # -- Dictionary --
 SERVICE_MESSAGE = {
     SERVICE_CODE_DEVICE_INVALID: {
@@ -353,6 +357,22 @@ SERVICE_MESSAGE = {
     SERVICE_CODE_BOOK_NOT_EXIST: {
         'en': "Book not exists!",
         'vi': "Sách không tồn tại trong hệ thống!"
+    },
+    SERVICE_CODE_BOOK_USER_NOT_EXIST: {
+        'en': "Book_user not exists!",
+        'vi': "Đơn hàng mượn sách không tồn tại trong hệ thống!"
+    },
+    SERVICE_CODE_CATEGORY_NOT_EXIST: {
+        'en': "Category not exists!",
+        'vi': "Thể loại sách không tồn tại trong hệ thống!"
+    },
+    SERVICE_CODE_AUTHOR_NOT_EXIST: {
+        'en': "Author not exists!",
+        'vi': "Tác giả không tồn tại trong hệ thống!"
+    },
+    SERVICE_CODE_PUBLISHING_COMPANY_NOT_EXIST: {
+        'en': "Publishing company not exists!",
+        'vi': "Nhà xuất bản không tồn tại trong hệ thống!"
     },
 }
 
