@@ -47,7 +47,7 @@ class Account(APIView):
             id=user_id,
             deleted_flag=False
         ).annotate(
-            permission_code=F('permission__permission_code'),
+            permission_code=F('permission__code'),
             permission_name=F('permission__name')
         ).values(
             'id',
