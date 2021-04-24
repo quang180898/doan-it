@@ -8,6 +8,7 @@ class Author(BaseModel):
     name = models.CharField(max_length=150, db_column='name', blank=True)
     mail = models.CharField(max_length=100, db_column='mail', null=True, blank=True)
     mobile = models.CharField(max_length=10, db_column='mobile', blank=True, null=True)
+    deleted_flag = models.BooleanField(db_column='deleted_flag', default=False)
 
     class Meta(BaseModel.Meta):
         db_table = 'author'

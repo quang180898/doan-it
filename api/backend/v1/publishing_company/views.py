@@ -6,14 +6,15 @@ from core.postgres.library.publishing_company.models import PublishingCompany
 from library.constant.api import (
     SERVICE_CODE_BODY_PARSE_ERROR,
     SERVICE_CODE_NOT_EXISTS_BODY,
-    SERVICE_CODE_NOT_FOUND,
+    SERVICE_CODE_NOT_FOUND, SERVICE_CODE_PUBLISHING_COMPANY_NOT_EXIST,
 )
 from library.functions import convert_to_int
 
 
 class LibraryPublishingCompany(APIView):
     def list_publishing_company(self, request):
-        publishing_company = PublishingCompany.objects.all(
+        publishing_company = PublishingCompany.objects.filter(
+            deleted_flag=False
         ).annotate(
             publishing_company_id=F('id'),
             publishing_company_name=F('name'),
@@ -50,7 +51,7 @@ class LibraryPublishingCompany(APIView):
         description = content.get('description')
         if publishing_company_id:
             try:
-                publishing_company = PublishingCompany.objects.get(id=publishing_company_id)
+                publishing_company = PublishingCompany.objects.get(id=publishing_company_id, deleted_flag=False)
             except PublishingCompany.DoesNotExist:
                 return self.response_exception(code=SERVICE_CODE_NOT_FOUND)
             publishing_company.name = name if name is not None else publishing_company.name
@@ -101,3 +102,19 @@ class LibraryPublishingCompany(APIView):
                 "publishing_company_website": publishing_company.website,
                 "publishing_company_description": publishing_company.description
             }))
+
+    def delete_publishing_company(self, request):
+        if not request.body:
+            return self.response_exception(code=SERVICE_CODE_NOT_EXISTS_BODY)
+        try:
+            content = self.decode_to_json(request.body)
+        except Exception as ex:
+            return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR, mess=str(ex))
+        publishing_company_id = convert_to_int(content.get('publishing_company_id'))
+        publishing_company = Category.objects.filter(id=publishing_company_id, deleted_flag=False).first()
+        if publishing_company:
+            publishing_company.deleted_flag = True
+            publishing_company.save()
+            return self.response(self.response_success("Success!"))
+        else:
+            return self.response_exception(code=SERVICE_CODE_PUBLISHING_COMPANY_NOT_EXIST)

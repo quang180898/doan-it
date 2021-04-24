@@ -6,13 +6,15 @@ from api.base.apiViews import APIView
 from core.postgres.library.author.models import Author
 from library.constant.api import SERVICE_CODE_NOT_EXISTS_BODY, SERVICE_CODE_BODY_PARSE_ERROR, \
     SERVICE_CODE_FULL_NAME_SPECIAL_CHARACTER, SERVICE_CODE_FULL_NAME_ISSPACE, SERVICE_CODE_MOBILE_ISSPACE, \
-    SERVICE_CODE_MOBILE_LENGTH, SERVICE_CODE_MOBILE_DUPLICATE, SERVICE_CODE_MAIL_DUPLICATE, SERVICE_CODE_MAIL_ISSPACE
+    SERVICE_CODE_MOBILE_LENGTH, SERVICE_CODE_MOBILE_DUPLICATE, SERVICE_CODE_MAIL_DUPLICATE, SERVICE_CODE_MAIL_ISSPACE, \
+    SERVICE_CODE_AUTHOR_NOT_EXIST
 from library.functions import convert_to_int, is_mobile_valid
 
 
 class LibraryAuthor(APIView):
     def list_author(self, request):
-        author = Author.objects.all(
+        author = Author.objects.filter(
+            deleted_flag=False
         ).annotate(
             author_id=F('id'),
             author_name=F('name'),
@@ -40,7 +42,7 @@ class LibraryAuthor(APIView):
 
         if author_id:
             try:
-                author = Author.objects.get(id=author_id)
+                author = Author.objects.get(id=author_id, deleted_flag=False)
             except Author.DoesNotExist:
                 return self.validate_exception("Author không tồn tại!")
             author.name = name if name is not None else author.name
@@ -90,3 +92,19 @@ class LibraryAuthor(APIView):
                 "author_mobile": author_new.mobile,
                 "author_mail": author_new.mail,
             }))
+
+    def delete_author(self, request):
+        if not request.body:
+            return self.response_exception(code=SERVICE_CODE_NOT_EXISTS_BODY)
+        try:
+            content = self.decode_to_json(request.body)
+        except Exception as ex:
+            return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR, mess=str(ex))
+        author_id = convert_to_int(content.get('author_id'))
+        author = Author.objects.filter(id=author_id, deleted_flag=False).first()
+        if author:
+            author.deleted_flag = True
+            author.save()
+            return self.response(self.response_success("Success!"))
+        else:
+            return self.response_exception(code=SERVICE_CODE_AUTHOR_NOT_EXIST)
