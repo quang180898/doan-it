@@ -8,7 +8,7 @@ from core.postgres.library.book.models import Book, BookUser
 from library.constant.api import SERVICE_CODE_NOT_EXISTS_BODY, SERVICE_CODE_BODY_PARSE_ERROR, \
     SERVICE_CODE_RECORD_NOT_VALIDATE, SERVICE_CODE_NOT_EXISTS_USER, SERVICE_CODE_BOOK_NOT_EXIST, SERVICE_CODE_NOT_FOUND, \
     SERVICE_CODE_CUSTOMER_NOT_EXIST, USER, SERVICE_CODE_USER_PERMISSION, SERVICE_CODE_BOOK_USER_NOT_EXIST
-from library.functions import string_to_time, convert_to_int
+from library.functions import string_to_time, convert_to_int, convert_byte_to_base64
 from library.service.check_active_flag import check_active_flag
 
 
@@ -52,9 +52,11 @@ class AccountBook(APIView):
         ).values(
             'id',
             'name',
+            'image_bytes',
             'price'
         ).order_by('id')
         for item in book_most_borrow:
+            item['image_bytes'] = convert_byte_to_base64(item['image_bytes'])
             book_count = BookUser.objects.filter(book_id=item['id'])
             item['count_borrow'] = book_count.count()
         # sap xep tu cao den thap
