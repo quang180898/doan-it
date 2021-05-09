@@ -36,7 +36,7 @@ from library.constant.custom_messages import (
     WRONG_PASSWORD,
     SAME_PASSWORD
 )
-from library.functions import convert_to_int, is_mobile_valid
+from library.functions import convert_to_int, is_mobile_valid, convert_byte_to_base64
 from library.service.upload_file import get_constant_file_type_from_extension
 
 
@@ -55,10 +55,12 @@ class Account(APIView):
             'mobile',
             'username',
             'mail',
+            'image_bytes',
             'permission_code',
             'permission_name'
         ).first()
         if customer:
+            customer['image_bytes'] = convert_byte_to_base64(customer['image_bytes'])
             return self.response(self.response_success(customer))
         else:
             return self.response_exception(code=SERVICE_CODE_NOT_FOUND)
