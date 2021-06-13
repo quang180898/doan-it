@@ -41,6 +41,23 @@ from library.service.upload_file import get_constant_file_type_from_extension
 
 
 class Account(APIView):
+    def list_user(self, request):
+        user_list = Customer.objects.filter(
+            deleted_flag=False
+        ).annotate(
+            permission_code=F('permission__code'),
+            permission_name=F('permission__name')
+        ).values(
+            'id',
+            'name',
+            'mobile',
+            'username',
+            'mail',
+            'permission_code',
+            'permission_name'
+        ).order_by('id')
+        return self.response(self.response_success(list(user_list)))
+
     def info_user(self, request):
         user_id = convert_to_int(self.request.query_params.get('user_id'))
         customer = Customer.objects.filter(
