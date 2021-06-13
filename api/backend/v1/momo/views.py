@@ -19,6 +19,8 @@ class Momo(APIView):
         if content == {}:
             return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR)
         amount = content['amount'] if content.get('amount') else None
+        if amount is None:
+            return self.validate_exception("missing amount!")
 
         endpoint = "https://test-payment.momo.vn/gw_payment/transactionProcessor"
         partnerCode = "MOMOMKTA20210508"
@@ -69,13 +71,7 @@ class Momo(APIView):
         req = urllib.request.Request(endpoint, data, {'Content-Type': 'application/json', 'Content-Length': clen})
         f = urllib.request.urlopen(req)
 
-        response = f.read()
+        response = f.read().decode('utf-8')
         f.close()
-        print(json.loads(response)['payUrl'])
-        return self.response(self.response(response))
-        # print("--------------------JSON response----------------\n")
-        # print(response)
-        # print(response + "\n")
-        #
-        # print("payUrl\n")
-        # print(json.loads(response)['payUrl'] + "\n")
+        response = json.loads(response)
+        return self.response(self.response_success(response))
