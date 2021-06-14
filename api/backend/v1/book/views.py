@@ -96,8 +96,11 @@ class LibraryBook(APIView):
             'price',
             'category_id',
             'category__name',
-            'quantity'
+            'quantity',
+            'image_bytes'
         ).order_by('id')
+        for item in book_same_category:
+            item['image_bytes'] = convert_byte_to_base64(item['image_bytes'])
         return self.response(self.response_success(list(book_same_category)))
 
     def create_or_update(self, request):

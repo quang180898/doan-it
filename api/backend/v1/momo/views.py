@@ -19,15 +19,19 @@ class Momo(APIView):
         if content == {}:
             return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR)
         amount = content['amount'] if content.get('amount') else None
-        if amount is None:
-            return self.validate_exception("missing amount!")
+        orderInfo = content['orderInfo'] if content.get('orderInfo') else None
+
+        key_content_list = list(content.keys())
+        check_keys_list = ['amount', 'orderInfo']
+        if not all(key in key_content_list for key in check_keys_list):
+            return self.validate_exception(
+                'Missing ' + ", ".join(str(param) for param in check_keys_list if param not in key_content_list))
 
         endpoint = "https://test-payment.momo.vn/gw_payment/transactionProcessor"
         partnerCode = "MOMOMKTA20210508"
         accessKey = "kn68wRx7LGZFIJsZ"
         serectkey = "hOAzKQbJ9cX73kHqJcUyXHPyTxfMdCR8"
         serectkey = str.encode(serectkey)
-        orderInfo = "pay with MoMo"
         returnUrl = "https://momo.vn/return"
         notifyurl = "https://dummy.url/notify"
         orderId = str(uuid.uuid4())
@@ -65,7 +69,6 @@ class Momo(APIView):
         }
         print("--------------------JSON REQUEST----------------\n")
         data = json.dumps(data)
-        print(data)
         clen = len(data)
         data = str.encode(data)
         req = urllib.request.Request(endpoint, data, {'Content-Type': 'application/json', 'Content-Length': clen})
