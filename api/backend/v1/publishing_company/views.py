@@ -111,7 +111,7 @@ class LibraryPublishingCompany(APIView):
         except Exception as ex:
             return self.response_exception(code=SERVICE_CODE_BODY_PARSE_ERROR, mess=str(ex))
         publishing_company_id = convert_to_int(content.get('publishing_company_id'))
-        publishing_company = Category.objects.filter(id=publishing_company_id, deleted_flag=False).first()
+        publishing_company = PublishingCompany.objects.filter(id=publishing_company_id, deleted_flag=False).first()
         if publishing_company:
             publishing_company.deleted_flag = True
             publishing_company.save()
