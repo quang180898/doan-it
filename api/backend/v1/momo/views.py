@@ -32,8 +32,8 @@ class Momo(APIView):
         accessKey = "kn68wRx7LGZFIJsZ"
         serectkey = "hOAzKQbJ9cX73kHqJcUyXHPyTxfMdCR8"
         serectkey = str.encode(serectkey)
-        returnUrl = "https://momo.vn/return"
-        notifyurl = "https://dummy.url/notify"
+        returnUrl = "http://localhost:3000/"
+        notifyurl = "http://localhost:3000/notify"
         orderId = str(uuid.uuid4())
         requestId = str(uuid.uuid4())
         requestType = "captureMoMoWallet"
@@ -71,10 +71,12 @@ class Momo(APIView):
         data = json.dumps(data)
         clen = len(data)
         data = str.encode(data)
+        print("Data", data)
         req = urllib.request.Request(endpoint, data, {'Content-Type': 'application/json', 'Content-Length': clen})
         f = urllib.request.urlopen(req)
 
         response = f.read().decode('utf-8')
+        print("response", response)
         f.close()
         response = json.loads(response)
         return self.response(self.response_success(response))
