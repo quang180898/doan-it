@@ -32,7 +32,7 @@ class Momo(APIView):
         accessKey = "kn68wRx7LGZFIJsZ"
         serectkey = "hOAzKQbJ9cX73kHqJcUyXHPyTxfMdCR8"
         serectkey = str.encode(serectkey)
-        returnUrl = "https://momo.vn/return"
+        returnUrl = "http://localhost:3000"
         notifyurl = "https://dummy.url/notify"
         orderId = str(uuid.uuid4())
         requestId = str(uuid.uuid4())
