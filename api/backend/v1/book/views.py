@@ -48,7 +48,8 @@ class LibraryBook(APIView):
             'image_bytes'
         ).order_by('id')
         for img in book:
-            img['image_bytes'] = get_thumbnail(img['image_bytes'])
+            base64 = convert_byte_to_base64(img['image_bytes'])
+            img['image_bytes'] = base64
         self.pagination(book)
         return self.response(self.response_paging(self.paging_list))
 
@@ -100,7 +101,8 @@ class LibraryBook(APIView):
             'image_bytes'
         ).order_by('id')
         for item in book_same_category:
-            item['image_bytes'] = convert_byte_to_base64(item['image_bytes'])
+            base64 = convert_byte_to_base64(item['image_bytes'])
+            item['image_bytes'] = base64
         return self.response(self.response_success(list(book_same_category)))
 
     def create_or_update(self, request):
